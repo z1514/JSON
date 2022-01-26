@@ -41,13 +41,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.json.XML;
-import org.json.XMLParserConfiguration;
-import org.json.XMLXsiTypeConverter;
+import org.json.*;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -1068,5 +1062,184 @@ public class XMLTest {
             });
             fail("Expected to be unable to modify the config");
         } catch (Exception ignored) { }
+    }
+
+    /**
+     * test passes when the key path is empty for toJSONObject(Reader reader, JSONPointer path)
+     * It should return the entire json object
+     */
+    @Test
+    public void testToJSONWithPathWhenPathEmpty(){
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address time=123>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+        try {
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/"));//for the json pointer, it should be a "/" for empty path, empty string will lead to error
+            System.out.println("result:"+jobj);
+        } catch (JSONException e) {
+            System.out.println(e);
+        }
+
+    }
+
+    /**
+     * test passes when the key path exists for toJSONObject(Reader reader, JSONPointer path)
+     * It should return the specific json object
+     */
+    @Test
+    public void testToJSONWithPathWhenPathExists(){
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address time=123>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+        try {
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/"));//for the json pointer, it should be a "/" for empty path, empty string will lead to error
+            System.out.println("result:"+jobj);
+        } catch (JSONException e) {
+            System.out.println(e);
+        }
+
+        try {
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street"));//for the json pointer, it should be a "/" for empty path, empty string will lead to error
+            System.out.println("result:"+jobj);
+        } catch (JSONException e) {
+            System.out.println(e);
+        }
+    }
+
+    /**
+     * test passes when the key path doesn't exist for toJSONObject(Reader reader, JSONPointer path)
+     * It should throw a jsonexception
+     */
+    @Test
+    public void testToJSONWithPathWhenPathNotExists(){
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address  time=123>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+        try {
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/dsa/"));//for the json pointer, it should be a "/" for empty path, empty string will lead to error
+            System.out.println("result:"+jobj);
+        } catch (JSONException e) {
+            System.out.println(e);
+        }
+        try {
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/add/street"));//for the json pointer, it should be a "/" for empty path, empty string will lead to error
+            System.out.println("result:"+jobj);
+        } catch (JSONException e) {
+            System.out.println(e);
+        }
+    }
+
+    /**
+     * test passes when the key path is empty for toJSONObject(Reader reader, JSONPointer path, JSONObject replacement)
+     * It should return replace object directly
+     */
+    @Test
+    public void testToJSONWithReplaceWhenPathEmpty(){
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+        try {
+            JSONObject replacement = XML.toJSONObject("<contact>Ave of the Arts</contact>\n");
+            System.out.println("Given replacement: " + replacement);
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/"), replacement);//the jsonPointer should not be empty, which will lead to errors
+            System.out.println(jobj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * test passes when the key path exists for toJSONObject(Reader reader, JSONPointer path, JSONObject replacement)
+     * It should return the replaced object
+     * The constraint here is that the root of the replacement should be the same as the last token of the path
+     * Ex: contact/address/street and {street:"..."}
+     * Otherwise, the replacement will be failed.
+     */
+    @Test
+    public void testToJSONWithReplaceWhenPathExists(){
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+        try {
+            JSONObject replacement = XML.toJSONObject("<street>Ave of the Arts</street>\n");
+            System.out.println("Given replacement: " + replacement);
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/street/"), replacement);//the jsonPointer should not be empty, which will lead to errors
+            System.out.println(jobj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            JSONObject replacement = XML.toJSONObject("<contact>Ave of the Arts</contact>\n");
+            System.out.println("Given replacement: " + replacement);
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/"), replacement);//the jsonPointer should not be empty, which will lead to errors
+            System.out.println(jobj);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * test passes when the key path doesn't exist for toJSONObject(Reader reader, JSONPointer path, JSONObject replacement)
+     * It should throw a JSONException
+     */
+    @Test
+    public void testToJSONWithReplaceWhenPathNotExists(){
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+        try {
+            JSONObject replacement = XML.toJSONObject("<street>Ave of the Arts</street>\n");
+            System.out.println("Given replacement: " + replacement);
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/add/street/"), replacement);//the jsonPointer should not be empty, which will lead to errors
+            System.out.println(jobj);
+        } catch (JSONException e) {
+            //e.printStackTrace();
+        }
+
+        try {
+            JSONObject replacement = XML.toJSONObject("<street>Ave of the Arts</street>\n");
+            System.out.println("Given replacement: " + replacement);
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/conta/ade/str"), replacement);//the jsonPointer should not be empty, which will lead to errors
+            System.out.println(jobj);
+        } catch (JSONException e) {
+            //e.printStackTrace();
+        }
     }
 }

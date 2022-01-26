@@ -65,7 +65,7 @@ public class JSONTokener {
     public JSONTokener(Reader reader) {
         this.reader = reader.markSupported()
                 ? reader
-                        : new BufferedReader(reader);
+                        : new BufferedReader(reader); //looks like a reader
         this.eof = false;
         this.usePrevious = false;
         this.previous = 0;

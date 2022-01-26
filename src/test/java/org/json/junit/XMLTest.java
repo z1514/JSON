@@ -1140,7 +1140,7 @@ public class XMLTest {
             System.out.println(e);
         }
         try {
-            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/add/street"));//for the json pointer, it should be a "/" for empty path, empty string will lead to error
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/stree"));//for the json pointer, it should be a "/" for empty path, empty string will lead to error
             System.out.println("result:"+jobj);
         } catch (JSONException e) {
             System.out.println(e);
@@ -1227,7 +1227,7 @@ public class XMLTest {
         try {
             JSONObject replacement = XML.toJSONObject("<street>Ave of the Arts</street>\n");
             System.out.println("Given replacement: " + replacement);
-            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/add/street/"), replacement);//the jsonPointer should not be empty, which will lead to errors
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), new JSONPointer("/contact/address/stree/"), replacement);//the jsonPointer should not be empty, which will lead to errors
             System.out.println(jobj);
         } catch (JSONException e) {
             //e.printStackTrace();

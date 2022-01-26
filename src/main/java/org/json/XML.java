@@ -1178,7 +1178,12 @@ public class XML {
             String string;
             //this part is the last part of code in the parse function, which uses recursion to generate json object
             //I copy and modify the code to extract the sub object
-            x.skipPast("<"+token);
+            while (true){
+                x.skipPast("<");
+                Object res = x.nextToken();
+                if (res instanceof String && res.equals(tokens[tokens.length-1]))
+                    break;
+            }
             {
                 String tagName = (String) token;//read the name
                 token = null;

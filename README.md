@@ -95,8 +95,29 @@ gradlew clean build test
  ```
  private static boolean parse(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, String[] tokens, int position, JSONObject replace)
 ```
+ 
  This overloaded parse function is used to help find and replace json objects in the keypath. It utilizes and modified codes to achieve the features. 
 
+**Unit Test**
+
+ There are six unit test for millstone 2. These test cases cover the right and wrong conditions. The details are listed in the XMLTest class. 
+ 
+ ```
+  public void testToJSONWithPathWhenPathEmpty()
+  public void testToJSONWithPathWhenPathExists()
+  public void testToJSONWithPathWhenPathNotExists()
+  public void testToJSONWithReplaceWhenPathEmpty()
+  public void testToJSONWithReplaceWhenPathExists()
+  public void testToJSONWithReplaceWhenPathNotExists()
+ ```
+ 
+ **Assumptions**
+ These two methods can only used on JSONObject. They can't be applied to XML file with JSONArray. 
+ 
+ **Summary**
+  Correctness: For right test cases, unit tests pass rightly. For wrong conditions, the tests will throw JSONException and indicate the cause of the problems. The methods can finish their tasks rightly.
+  Efficiency: For the first task, the function reused code of parse function. It will skip unrelated sections quickly until find the target part, or just throw an exception when such a path doesn't exists. Since it doesn't read all the xml, it is much faster than the original functions. 
+  For the second task, it overloaded parse function in a recursive style. When it reachs the final key path, it will skip the json object in the original xml file directly and do the replacement once. The implemention in the library is faster than the original method since it does the replacement in the process of converting the xml into json. A shortcoming is that the efficiency boost is relied on the sub json objects' size. 
 
 
 

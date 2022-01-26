@@ -14,6 +14,10 @@ This project is intended for learning and improving org.json library's functions
 # Build Instructions
 
 The org.json package can be built from the command line, Maven, and Gradle. The unit tests can be executed from Maven, Gradle, or individually in an IDE e.g. Intellij IDEA.
+
+**Building and testing in IDEA IDE(recommend)**
+
+Just clone the project into a local device and import this project as a maven project into IDEA IDE. Now the user can read and run XML class and XMLTest class directly to do the tests (for millstone 2, since there will be difference between devices, using IDE is more stable). 
  
 **Building from the command line**
 
@@ -73,12 +77,27 @@ gradlew clean build test
 
 # Notes
 
-For more information, please see [NOTES.md](https://github.com/stleary/JSON-java/blob/master/docs/NOTES.md)
+## Millstone 2
 
-# Files
+**Implemented Methods**
+```
+ public static JSONObject toJSONObject(Reader reader, JSONPointer path)
+ ```
+ 
+  This function is to read the sub object directly in the key path. It reuses and modifies some code in parse method. 
+ 
+ ```
+ public static JSONObject toJSONObject(Reader reader, JSONPointer path, JSONObject replacement)
+ ```
+ 
+  This function is to replace the json objects on the keypath with specified json object. It reuses and modifies some code in parse method. In addition, to make this function work, an overloaded parse function is implemented and used in this function. 
+  
+ ```
+ private static boolean parse(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, String[] tokens, int position, JSONObject replace)
+```
+ This overloaded parse function is used to help find and replace json objects in the keypath. It utilizes and modified codes to achieve the features. 
 
-For more information on files, please see [FILES.md](https://github.com/stleary/JSON-java/blob/master/docs/FILES.md)
 
-# Release history:
 
-For the release history, please see [RELEASES.md](https://github.com/stleary/JSON-java/blob/master/docs/RELEASES.md)
+
+

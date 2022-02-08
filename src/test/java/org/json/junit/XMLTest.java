@@ -30,14 +30,8 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -1240,6 +1234,104 @@ public class XMLTest {
             System.out.println(jobj);
         } catch (JSONException e) {
             //e.printStackTrace();
+        }
+    }
+
+    //add
+    //concat
+    //uppercase
+    //cdate?
+    @Test
+    public void testToJSONWithKeyTransformer(){
+        String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                "<contact>\n"+
+                "  <nick>Crista </nick>\n"+
+                "  <name>Crista Lopes</name>\n" +
+                "  <address>\n" +
+                "    <street>Ave of Nowhere</street>\n" +
+                "    <zipcode>92614</zipcode>\n" +
+                "  </address>\n" +
+                "</contact>";
+        try {
+            JSONObject obj = XML.toJSONObject(new StringReader(xmlString));
+            System.out.println(obj);
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString),(s)->{
+                return "swe262_"+s+"_test";
+            });//the jsonPointer should not be empty, which will lead to errors
+            System.out.println(jobj);
+        } catch (JSONException e) {
+            //e.printStackTrace();
+        }
+
+        try {
+            JSONObject obj = XML.toJSONObject(new StringReader(xmlString));
+            System.out.println(obj);
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), (s)->{
+                return new StringBuilder(s).reverse().toString();
+            });//the jsonPointer should not be empty, which will lead to errors
+            System.out.println(jobj);
+        } catch (JSONException e) {
+            //e.printStackTrace();
+        }
+
+        try {
+            JSONObject obj = XML.toJSONObject(new StringReader(xmlString));
+            System.out.println(obj);
+            JSONObject jobj = XML.toJSONObject(new StringReader(xmlString), (s)->{
+                return s.toUpperCase();
+            });//the jsonPointer should not be empty, which will lead to errors
+            System.out.println(jobj);
+        } catch (JSONException e) {
+            //e.printStackTrace();
+        }
+
+        try {
+            JSONObject obj = XML.toJSONObject(new StringReader(xmlString));
+            System.out.println(obj);
+            long start = System.currentTimeMillis();
+            JSONObject jobj = XML.toJSONObject(new BufferedReader(new FileReader("ptwiki-20211001-abstract2.xml")), (s)->{
+                return "swe262_"+s;
+            });//the jsonPointer should not be empty, which will lead to errors
+            long end = System.currentTimeMillis();
+            System.out.println(end-start);
+            jobj.write(new FileWriter("test1.json"));
+        } catch (JSONException e) {
+            //e.printStackTrace();
+        }catch (IOException e){
+
+        }
+
+        try {
+            JSONObject obj = XML.toJSONObject(new StringReader(xmlString));
+            System.out.println(obj);
+            long start = System.currentTimeMillis();
+            JSONObject jobj = XML.toJSONObject(new BufferedReader(new FileReader("ptwiki-20211001-flowhistory.xml")), (s)->{
+                return "swe262_"+s;
+            });//the jsonPointer should not be empty, which will lead to errors
+            long end = System.currentTimeMillis();
+            System.out.println(end-start);
+            jobj.write(new FileWriter("test2.json"));
+
+        } catch (JSONException e) {
+            //e.printStackTrace();
+        }catch (IOException e){
+
+        }
+
+        try {
+            JSONObject obj = XML.toJSONObject(new StringReader(xmlString));
+            System.out.println(obj);
+            long start = System.currentTimeMillis();
+            JSONObject jobj = XML.toJSONObject(new BufferedReader(new FileReader("ptwiki-20211001-pages-articles-multistream6.xml")), (s)->{
+                return "swe262_"+s;
+            });//the jsonPointer should not be empty, which will lead to errors
+            long end = System.currentTimeMillis();
+            System.out.println(end-start);
+            jobj.write(new FileWriter("test3.json"));
+        } catch (JSONException e) {
+            //e.printStackTrace();
+        }catch (IOException e){
+
         }
     }
 }

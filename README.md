@@ -96,7 +96,7 @@ gradlew clean build test
  private static boolean parse(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, String[] tokens, int position, JSONObject replace)
 ```
  
- This overloaded parse function is used to help find and replace JSON objects in the keypath. It utilizes and modified codes to achieve the features. 
+ This overloaded parse function is used to help find and replace JSON objects in the keypath. It utilizes and modified codes in original parse function to achieve the features. 
 
 **Unit Test**
 
@@ -113,7 +113,7 @@ gradlew clean build test
  
  **Assumptions**
  
-  These two methods can only be used on JSONObject. They can't be applied to an XML file with JSONArray. 
+  These two methods can only be used on JSONObject. They can't be applied to an XML file with JSONArray. More constraint can be found in the function comments in the XML and XMLTest file. 
  
  **Summary**
  
@@ -123,4 +123,4 @@ gradlew clean build test
   
   For the first task, the function reused the code of the parse function. It will skip unrelated sections quickly until finding the target part, or just throw an exception when such a path doesn't exist. Since it doesn't read all the XML, it is much faster than the original functions. 
   
-  The second task overloaded the parse function in a recursive style. When it reaches the final key path, it will skip the JSON object in the original XML file directly and do the replacement once. The implementation in the library is faster than the original method since it does the replacement in the process of converting the XML into JSON. A shortcoming is that the efficiency boost relies on the sub JSON objects' size. 
+  The second task overloaded the parse function in a recursive style. When it reaches the final key path, it will skip the JSON object in the original XML file and do the replacement directly. The implementation in the library is faster than the original method since it does the replacement in the process of converting the XML into JSON. The function will not need the whole json object to do the replacement. A shortcoming is that the efficiency boost relies on the sub JSON objects' size. 

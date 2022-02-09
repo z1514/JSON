@@ -1359,7 +1359,15 @@ public class XML {
     }
 
     /**
+     * toJSONObject to transform key values in xml files. This method
+     * is just same to the toJSONObject method toJSONObject(Reader reader,
+     * XMLParserConfiguration config) except it accepts a keyTransformer Function
+     * Object to do the transformation. To finish the transformation, I reloaded
+     * a new parse method to use transformer during parsing.
      *
+     * @param reader The source reader
+     * @param keyTransformer The transformer will read a String and return a transformed string.
+     * @return The whole json object after transforming
      */
     public static JSONObject toJSONObject(Reader reader, Function<String,String> keyTransformer){
         JSONObject jo = new JSONObject();
@@ -1373,6 +1381,27 @@ public class XML {
         return jo;
     }
 
+
+    /**
+     * Scan the content following the named tag, attaching it to the context. This
+     * is overloaded for toJSONObject(Reader reader, Function<String,String> keyTransformer).
+     * The codes are just the same as original parse method. The only difference is that
+     * when methods like context.accumulate(tagName, jsonObject) are used, the key transformer is
+     * used on the tagName to transform it to what we want.
+     *
+     * @param x
+     *            The XMLTokener containing the source string.
+     * @param context
+     *            The JSONObject that will include the new material.
+     * @param name
+     *            The tag name.
+     * @param  config
+     *            The config tells the parse method how to parse XML
+     * @param  keyTransformer
+     *            The transformer is used to transform the keys in the parsing.
+     * @return true if the close tag is processed.
+     * @throws JSONException
+     */
     private static boolean parse(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, Function<String,String> keyTransformer)
             throws JSONException{
         char c;
@@ -1411,6 +1440,7 @@ public class XML {
                     if (x.next() == '[') {
                         string = x.nextCDATA();
                         if (string.length() > 0) {
+                            //use the transformer
                             context.accumulate(keyTransformer.apply(config.getcDataTagName()), string);
                         }
                         return false;//cdata
@@ -1457,9 +1487,7 @@ public class XML {
             // Open tag <
 
         } else {
-//            System.out.println(context);
             tagName = (String) token;//read the name
-//            System.out.println(tagName); iterate the tags in recursive way
             token = null;
             jsonObject = new JSONObject();//a new Object
             boolean nilAttributeFound = false;//null attribute?
@@ -1467,7 +1495,7 @@ public class XML {
             for (;;) {
                 if (token == null) {
                     token = x.nextToken();
-//                    System.out.println(token); //read >
+            //read >
                 }
                 // attribute = value
                 if (token instanceof String) {
@@ -1539,13 +1567,14 @@ public class XML {
                             string = (String) token;
                             if (string.length() > 0) {
                                 if(xmlXsiTypeConverter != null) {
-                                    jsonObject.accumulate(config.getcDataTagName(),
+                                    jsonObject.accumulate(keyTransformer.apply(config.getcDataTagName()),
                                             stringToValue(string, xmlXsiTypeConverter));//give a name
+//                                    jsonObject.accumulate("a",
+//                                            stringToValue(string, xmlXsiTypeConverter));//give a name
                                 } else {
-                                    jsonObject.accumulate(config.getcDataTagName(),
+                                    jsonObject.accumulate(keyTransformer.apply(config.getcDataTagName()),
                                             config.isKeepStrings() ? string : stringToValue(string));
-//                                    System.out.println(config.getcDataTagName());
-//                                    System.out.println(jsonObject);
+
                                 }
                             }
 
@@ -1560,8 +1589,10 @@ public class XML {
                                     if (jsonObject.length() == 0) {
                                         context.put(keyTransformer.apply(tagName), new JSONArray());
                                     } else if (jsonObject.length() == 1
-                                            && jsonObject.opt(config.getcDataTagName()) != null) {//change
-                                        context.append(keyTransformer.apply(tagName), jsonObject.opt(config.getcDataTagName()));
+                                            && jsonObject.opt(keyTransformer.apply(config.getcDataTagName())) != null) {//change
+                                        //System.out.println(jsonObject.opt(config.getcDataTagName()));
+                                        System.out.println(config.getcDataTagName());
+                                        context.append(keyTransformer.apply(tagName), jsonObject.opt(keyTransformer.apply(config.getcDataTagName())));
                                     } else {
                                         context.append(keyTransformer.apply(tagName), jsonObject);
                                     }
@@ -1570,11 +1601,14 @@ public class XML {
                                     if (jsonObject.length() == 0) {
                                         context.accumulate(keyTransformer.apply(tagName), "");
                                     } else if (jsonObject.length() == 1
-                                            && jsonObject.opt(config.getcDataTagName()) != null) {
+                                            && jsonObject.opt(keyTransformer.apply(config.getcDataTagName())) != null) {
 //                                        System.out.println("before:"+jsonObject);
 //                                        System.out.println(config.getcDataTagName());
 //                                        System.out.println(tagName);
-                                        context.accumulate(keyTransformer.apply(tagName), jsonObject.opt(config.getcDataTagName()));
+                                        //System.out.println(jsonObject.opt(config.getcDataTagName()));
+
+                                        context.accumulate(keyTransformer.apply(tagName), jsonObject.opt(keyTransformer.apply(config.getcDataTagName())));
+
 //                                        System.out.println("after:"+context);
                                     } else {
 //                                        System.out.println(context);

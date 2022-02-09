@@ -156,6 +156,6 @@ gradlew clean build test
  
   Correctness: For all kinds of cases, unit tests pass rightly. The methods can finish their tasks rightly.
    
-  Efficiency: The new method is much faster than client method in millstone 1. Based on tests results, the new method can save 50-60% time than client method before.  
+  Efficiency: The new method is much faster than client method in millstone 1. Based on tests results, the new method can save 50-60% time than client method before. This is because the new method transform the keys during parsing. In the process, the method doesn't need to generate a whole json object at first and then iterate the whole object again. Since it just reads the xml text in one time and doesn't deal with json object one more time, the test results are reasonable. 
   
   I tested 10 files. The sample.xml file in this project is from https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms762271(v=vs.85), other xml files are from wikimedia (from 20MB to 1GB).

@@ -77,7 +77,7 @@ gradlew clean build test
 
 # Notes
 
-## Millstone 2
+  ## Millstone 2
 
 **Implemented Methods**
 ```
@@ -124,3 +124,36 @@ gradlew clean build test
   For the first task, the function reused the code of the parse function. It will skip unrelated sections quickly until finding the target part, or just throw an exception when such a path doesn't exist. Since it doesn't read all the XML, it is much faster than the original functions. 
   
   The second task overloaded the parse function in a recursive style. When it reaches the final key path, it will skip the JSON object in the original XML file and do the replacement directly. The implementation in the library is faster than the original method since it does the replacement in the process of converting the XML into JSON. The function will not need the whole json object to do the replacement. A shortcoming is that the efficiency boost relies on the sub JSON objects' size. 
+  
+  ## Millstone 3
+
+**Implemented Methods**
+```
+ public static JSONObject toJSONObject(Reader reader, Function<String,String> keyTransformer)
+ ```
+ 
+  This method uses reader to read text in xml, and apply key transformer on the keys in xml files.
+  
+ ```
+ private static boolean parse(XMLTokener x, JSONObject context, String name, XMLParserConfiguration config, Function<String,String> keyTransformer)
+```
+ 
+ This overloaded parse function reuses original parse method codes, and uses Function keyTransformer on tagName when it add jsonObject under a tagName. 
+
+**Unit Test**
+
+ There are one unit test methods for millstone 3. These test cases cover cases like adding letters, reversing order and changing words to uppercases. The details are listed in the XMLTest class. 
+ 
+ ```
+  public void testToJSONWithKeyTransformer()
+ ```
+ 
+ **Assumptions**
+ 
+  This method can work on both json objects and json arrays. But when it deals with large files (>1GB), it's possible to fail. 
+ 
+ **Summary**
+ 
+  Correctness: For all kinds of cases, unit tests pass rightly. The methods can finish their tasks rightly.
+   
+  Efficiency: The new method is much faster than client method in millstone 1. Based on tests results, the new method can save 50-60% time than client method before.  

@@ -17,7 +17,7 @@ The org.json package can be built from the command line, Maven, and Gradle. The 
 
 **Building and testing in IDEA IDE(recommend)**
 
-Just clone the project into a local device and import this project as a Maven project into IDEA IDE. Now the user can read and run the XML class and XMLTest class directly to do the tests (for millstone 2, since there will be a difference between devices, using IDE is more stable). 
+Just clone the project into a local device and import this project as a Maven project into IDEA IDE. Now the user can read and run the XML class and XMLTest class directly to do the tests (for this project, since there will be a difference between devices, using IDE is more stable). 
  
 **Building from the command line**
 

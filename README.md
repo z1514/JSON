@@ -179,7 +179,7 @@ gradlew clean build test
  static class JSONObjectSpliterator implements Spliterator<Map.Entry<String,Object>>
  ```
  
- To make the stream work, how to splite the JSONObject into stream needs to be specified.  JSONObjectSpliterator class implements tryAdvance method to analyze the tree structure of the JSONObject, so Spliterator can return a spliterator of JSONObject for StreamSupport.stream method.
+ To make the stream work, how to splite the JSONObject into stream needs to be specified.  JSONObjectSpliterator class implements tryAdvance method to analyze the tree structure of the JSONObject, so spliterator() method can return a spliterator of JSONObject for StreamSupport.stream method.
  
  
 

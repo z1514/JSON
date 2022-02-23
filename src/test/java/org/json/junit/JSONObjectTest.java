@@ -40,16 +40,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.json.CDL;
 import org.json.JSONArray;
@@ -3351,4 +3345,50 @@ public class JSONObjectTest {
         assertTrue("expected jsonObject.length() == 0", jsonObject.length() == 0); //Check if its length is 0
         jsonObject.getInt("key1"); //Should throws org.json.JSONException: JSONObject["asd"] not found
     }
+
+    /**
+     * Tests if the stream can work with for each method correctly.
+     */
+    @Test
+    public void jsonObjectStreamForEachTest(){
+//        JSONObject obj = XML.toJSONObject("<author>ASmith</author>");
+        JSONObject obj = XML.toJSONObject("<Books><id>1</id><value>File</value><book><title>AAA</title><author>ASmith</author>" +
+                "</book><book><title>BBB</title><author>BSmith</author></book></Books>");
+        //for json object, just print key.
+        //for primitive like int, string, print key and value.
+        //transform the key with prefix swe262_
+        obj.toStream().forEach(a->{
+            a = new AbstractMap.SimpleEntry<String,Object>("swe262_"+a.getKey(),a.getValue());
+            System.out.println(a);
+        });
+    }
+
+    /**
+     * Tests if the stream can work with map method correctly.
+     */
+    @Test
+    public void jsonObjectStreamMapTest(){
+        JSONObject obj = XML.toJSONObject("<Books><id>1</id><value>File</value><book><title>AAA</title><author>ASmith</author>" +
+                "</book><book><title>BBB</title><author>BSmith</author></book></Books>");
+        //map from key-value to value.
+        List<Object> list = obj.toStream().map(e->e.getValue()).collect(Collectors.toList());
+        for (Object object:list){
+            System.out.println(object);
+        }
+    }
+
+    /**
+     * Test if the stream can work with filter method correctly.
+     */
+    @Test
+    public void jsonObjectStreamFilterTest(){
+        JSONObject obj = XML.toJSONObject("<Books><id>1</id><value>File</value><book><title>AAA</title><author>ASmith</author>" +
+                "</book><book><title>BBB</title><author>BSmith</author></book></Books>");
+        //here we filter the key-value pairs where key==book
+        System.out.println("original");
+        obj.toStream().forEach(System.out::println);
+        System.out.println("transform");
+        obj.toStream().filter(node->!node.getKey().equals("book")).forEach(System.out::println);
+    }
+
 }

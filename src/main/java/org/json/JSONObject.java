@@ -36,18 +36,12 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.IdentityHashMap;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * A JSONObject is an unordered collection of name/value pairs. Its external
@@ -2724,5 +2718,97 @@ public class JSONObject {
         return new JSONException(
             "JavaBean object contains recursively defined member variable of key " + quote(key)
         );
+    }
+
+
+    /**
+     * Transform a json object into a stream of key-value pairts
+     * @return Stream<Entry<String,Object>>
+     */
+    public Stream<Entry<String,Object>> toStream(){
+        return StreamSupport.stream(this.spliterator(),false);
+    }
+
+    /**
+     * Spliterator method used for toStream to split a json object into stream
+     * @return Spliterator<Map.Entry<String,Object>>
+     */
+    public Spliterator<Map.Entry<String,Object>> spliterator(){
+        return new JSONObjectSpliterator(this);
+    }
+
+    /**
+     * Spliterator class: the actual class used to split json object
+     */
+    static class JSONObjectSpliterator implements Spliterator<Map.Entry<String,Object>>{
+        private final JSONObject root;
+        private JSONObject tree;
+        /**
+         * Constructor
+         * @param object the json object
+         */
+        JSONObjectSpliterator(JSONObject object){
+            this.root = object;//the json object root
+            this.tree = object;
+        }
+
+        /**
+         * Generate a collection of key-value pairs recursively like a BTree
+         * @param action
+         * @return
+         */
+        @Override
+        public boolean tryAdvance(Consumer<? super Entry<String, Object>> action) {
+            JSONObject cur = tree; //record current position
+            for (Map.Entry<String,Object> entry:cur.entrySet()){//iterate, json object is actually a map of
+                //<string, object(jsonobject, jsonarray,int,string,null...)>, so first add current entry into action
+                action.accept(entry);
+                //if entry's value is a jsonarray, iterate it.
+                if (entry.getValue() instanceof JSONArray){
+                    JSONArray array = (JSONArray) entry.getValue();
+                    for (int i=0;i<array.length();i++){
+                        //add a index id for each of the json object in this array
+                        action.accept(new AbstractMap.SimpleEntry<String,Object>(""+i,array.get(i)));
+                        //go to a deeper level
+                        tree = (JSONObject) array.get(i);
+                        tryAdvance(action);
+                        //return to current level
+                        tree = cur;
+                    }
+                }else if (entry.getValue() instanceof JSONObject){
+                    //if current value is json object
+                    //go to a deeper level
+                    tree = (JSONObject) entry.getValue();
+                    //recursion
+                    tryAdvance(action);
+                    //return
+                    tree = cur;
+                }else{
+                    //if not object or array, it is a primitive value
+                    //we don't need to go deeper
+                    continue; //like integer,string,double
+                }
+            }
+            if (tree==root){//When the tree equals to root, all nodes are included
+                return false;
+            }else{
+                return true;
+            }
+        }
+
+        @Override
+        public Spliterator<Entry<String, Object>> trySplit() {
+            return null;
+        }
+
+        @Override
+        public long estimateSize() {
+            return Long.MAX_VALUE;
+        }
+
+        @Override
+        public int characteristics() {
+            return Spliterator.DISTINCT|Spliterator.IMMUTABLE|Spliterator.NONNULL;
+        }
     }
 }

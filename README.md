@@ -159,3 +159,57 @@ gradlew clean build test
   Efficiency: The new method is much faster than client method in millstone 1. Based on tests results, the new method can save 50-60% time than client method before. This is because the new method transform the keys during parsing. In the process, the method doesn't need to generate a whole json object at first and then iterate the whole object again. Since it just reads the xml text in one time and doesn't deal with json object one more time, the test results are reasonable. 
   
   I tested 10 files. The sample.xml file in this project is from https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms762271(v=vs.85), other xml files are from wikimedia (from 20MB to 1GB).
+  
+  ## Millstone 4
+
+**Implemented Methods and Classes**
+```
+ public Stream<Entry<String,Object>> toStream()
+ ```
+ 
+  This method is used to transform the JSONObject into a key-value stream. 
+  
+ ```
+ public Spliterator<Map.Entry<String,Object>> spliterator()
+```
+ 
+ To make toStream method work, a spliterator method is implemented. It is used in StreamSupport.stream method to generate the stream.
+ 
+ ```
+ static class JSONObjectSpliterator implements Spliterator<Map.Entry<String,Object>>
+ ```
+ 
+ To make the stream work, how to splite the JSONObject into stream needs to be specified.  JSONObjectSpliterator class implements tryAdvance method to analyze the tree structure of the JSONObject, so Spliterator can return a spliterator of JSONObject for StreamSupport.stream method.
+ 
+ 
+
+**Unit Test**
+
+ There are three unit test methods for millstone 4. These test cases cover cases like using forEach, map and filter methods on the stream to show whether the generated stream can work correctly.
+ 
+ ```
+  public void jsonObjectStreamForEachTest()
+  public void jsonObjectStreamMapTest()
+  public void jsonObjectStreamFilterTest()
+ ```
+ 
+ An example of output is below:
+ 
+ ```
+Books={"book":[{"author":"ASmith","title":"AAA"},{"author":"BSmith","title":"BBB"}],"id":1,"value":"File"}
+book=[{"author":"ASmith","title":"AAA"},{"author":"BSmith","title":"BBB"}]
+0={"author":"ASmith","title":"AAA"}
+author=ASmith
+title=AAA
+1={"author":"BSmith","title":"BBB"}
+author=BSmith
+title=BBB
+id=1
+value=File
+ ```
+ 
+ **Summary**
+ 
+  Correctness: For all kinds of cases, unit tests pass correctly and the output results are right. The toStream method works.
+   
+  For this millstone, I generate a stream of key-values rather than JSONObject. This is because there are several instance types in JSONObject like JSONObject, JSONArray, and Primitives. To keep the tree structure and not add new nodes in our stream(transform json array to a json object), using key-value is a good choice. Besides, for each object in a JSONArray, I add an ordinal key for them. In this way, it will be convenient to figure out a json array in the output. 

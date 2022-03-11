@@ -34,6 +34,7 @@ import java.io.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 import org.json.*;
 import org.junit.Rule;
@@ -1368,5 +1369,93 @@ public class XMLTest {
 //        }catch (IOException e){
 //
 //        }
+    }
+
+    /**
+     * Test passes when the XML format is correct.
+     * For method Future<JSONObject> toJSONObject(Reader reader, Function<JSONObject,Void> onFinish, Function<Exception,Void> onError).
+     * It should return transformed JSONObject
+     */
+    @Test
+    public void testToJSONConcurrentSuccess(){
+        try {
+            String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                    "<contact>\n"+
+                    "  <nick>Crista </nick>\n"+
+                    "  <name code='dfd' >Crista Lopes</name>\n" +
+                    "  <address>\n" +
+                    "    <street>Ave of Nowhere</street>\n" +
+                    "    <zipcode>92614</zipcode>\n" +
+                    "  </address>\n" +
+                    " <phone id=1>949xxxxxxx</phone>\n"+
+                    "<phone id=2>949xxxxxxx</phone>\n"+
+                    "</contact>";
+            //BufferedReader reader = new BufferedReader(new FileReader("sample.xml"));
+            Writer writer = new FileWriter("sample.json");
+            Future<JSONObject> f = XML.toJSONObject(new StringReader(xmlString),(JSONObject jo)->{
+                //System.out.println(jo.toString());
+                jo.write(writer);
+                try {
+                    writer.flush();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                return null;
+            },(Exception e)->{
+                System.out.println(e);
+                System.out.println("Concurrent failed");
+                return null;
+            });
+            //while (!f.isDone());
+            JSONObject jo = f.get(); // need to wait for the results here
+            //System.out.println(jo.toString());
+            assert (jo!=null);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Test passes when the XML format is not correct.
+     * For method Future<JSONObject> toJSONObject(Reader reader, Function<JSONObject,Void> onFinish, Function<Exception,Void> onError).
+     * It should return a null since there is no transformed JSONObject
+     */
+    @Test
+    public void testToJSONConcurrentError(){
+        try {
+            //here we delete a < symbol
+            String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+                    "<contact>\n"+
+                    "  <nick>Crista </nick>\n"+
+                    "  <name code='dfd' >Crista Lopes</name>\n" +
+                    "  <address>\n" +
+                    "    <street>Ave of Nowhere</street>\n" +
+                    "    <zipcode>92614</zipcode>\n" +
+                    "  /address>\n" +
+                    " <phone id=1>949xxxxxxx</phone>\n"+
+                    "<phone id=2>949xxxxxxx</phone>\n"+
+                    "</contact>";
+            Writer writer = new FileWriter("sample.json");
+            Future<JSONObject> f = XML.toJSONObject(new StringReader(xmlString),(JSONObject jo)->{
+                //System.out.println(jo.toString());
+                jo.write(writer);
+                try {
+                    writer.flush();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                return null;
+            },(Exception e)->{
+                //System.out.println(e);
+                System.out.println("Concurrent failed");
+                return null;
+            });
+            //while (!f.isDone());
+            JSONObject jo = f.get(); // need to wait for the results here
+            //System.out.println(jo.toString());
+            assert (jo==null);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

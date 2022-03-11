@@ -30,6 +30,8 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Iterator;
+import java.util.concurrent.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 
@@ -76,6 +78,11 @@ public class XML {
     public static final String NULL_ATTR = "xsi:nil";
 
     public static final String TYPE_ATTR = "xsi:type";
+
+    /**
+     * Thread pool for asynchronous toJSONObject method
+     */
+    private static ExecutorService executor = Executors.newFixedThreadPool(4);;
 
     /**
      * Creates an iterator for navigating Code Points in a string instead of
@@ -1761,6 +1768,37 @@ public class XML {
         return toJSONObject(new StringReader(string), config);
     }
 
+
+    //https://www.baeldung.com/java-future
+    /**
+     * toJSONObject to transform key values in xml files. This method
+     * is an asynchronous toJSONObject method. It accepts a reader and
+     * invoke normal toJSONObject method to do the transformation.
+     * The only difference is that this method uses Future and Thread poll
+     * to do the transformation asynchronously.
+     *
+     * @param reader The source reader
+     * @param onFinish The callback function for success.
+     * @param onError The callback function for exception.
+     * @return The whole json object after transforming or null when there is an exception.
+     */
+    public static Future<JSONObject> toJSONObject(Reader reader, Function<JSONObject,Void> onFinish, Function<Exception,Void> onError){
+        return executor.submit(new Callable<JSONObject>() {
+            @Override
+            public JSONObject call(){
+                try {
+                    JSONObject jsonObject = XML.toJSONObject(reader);
+                    onFinish.apply(jsonObject);
+                    return jsonObject;
+                }catch (Exception e){
+                    //e.printStackTrace();
+                    onError.apply(e);
+                }
+                return null;
+            }
+        });
+    }
+
     /**
      * Convert a JSONObject into a well-formed, element-normal XML string.
      *
@@ -1779,7 +1817,7 @@ public class XML {
      * @param object
      *            A JSONObject.
      * @param tagName
-     *            The optional name of the enclosing tag.
+     *            The optional name of the enclosing tag.toS
      * @return A string.
      * @throws JSONException Thrown if there is an error parsing the string
      */

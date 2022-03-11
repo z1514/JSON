@@ -214,7 +214,7 @@ value=File
    
   For this millstone, I generate a stream of key-values rather than JSONObject. This is because there are several instance types in JSONObject like JSONObject, JSONArray, and Primitives. To keep the tree structure and not add new nodes in our stream(transform json array to a json object), using key-value is a good choice. Besides, for each object in a JSONArray, I add an ordinal key for them. In this way, it will be convenient to figure out a json array in the output. 
   
-    ## Millstone 5
+   ## Millstone 5
 
 **Implemented Methods and Classes**
 ```
@@ -236,4 +236,4 @@ value=File
  
   Correctness: For all kinds of test cases, unit tests pass correctly and the output matches the expected. The toJSONObject method works.
    
-  To make the method work asynchronously, I used Future and Thread pool in the XML class. Besides, I add two Function objects as arguments to figure out what to do on success and failure. In this way, the users can define their logics for the callback functions. This is quite similar to the JavaScript CallBack Style and this method just works well.
+  To make the method work asynchronously, I used Future and Thread pool in the XML class. Besides, I add two Function objects as arguments to figure out what to do on success and failure. In this way, the users can define their logic for the callback functions. This is quite similar to the JavaScript CallBack Style and this method just works well.

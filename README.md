@@ -213,3 +213,27 @@ value=File
   Correctness: For all kinds of cases, unit tests pass correctly and the output results are right. The toStream method works.
    
   For this millstone, I generate a stream of key-values rather than JSONObject. This is because there are several instance types in JSONObject like JSONObject, JSONArray, and Primitives. To keep the tree structure and not add new nodes in our stream(transform json array to a json object), using key-value is a good choice. Besides, for each object in a JSONArray, I add an ordinal key for them. In this way, it will be convenient to figure out a json array in the output. 
+  
+    ## Millstone 5
+
+**Implemented Methods and Classes**
+```
+ public static Future<JSONObject> toJSONObject(Reader reader, Function<JSONObject,Void> onFinish, Function<Exception,Void> onError)
+ ```
+ 
+  This method is used to transform the JSONObject asynchronously by using Future, Thread pool and existing methods. 
+  
+**Unit Test**
+
+ There are two unit test methods for millstone 5. These test cases use right XML text and wrong XML text as input to test whether the XML will be transformed into JSON Object and invoke the corresponding Function when the transformation successes and fails.
+ 
+ ```
+  public void testToJSONConcurrentSuccess()
+  public void testToJSONConcurrentError()
+ ```
+
+ **Summary**
+ 
+  Correctness: For all kinds of test cases, unit tests pass correctly and the output matches the expected. The toJSONObject method works.
+   
+  To make the method work asynchronously, I used Future and Thread pool in the XML class. Besides, I add two Function objects as arguments to figure out what to do on success and failure. In this way, the users can define their logics for the callback functions. This is quite similar to the JavaScript CallBack Style and this method just works well.

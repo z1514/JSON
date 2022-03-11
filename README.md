@@ -225,7 +225,7 @@ value=File
   
 **Unit Test**
 
- There are two unit test methods for millstone 5. These test cases use right XML text and wrong XML text as input to test whether the XML will be transformed into JSON Object and invoke the corresponding Function when the transformation successes and fails.
+ There are two unit test methods for millstone 5. These test cases use right XML text and wrong XML text as input to test whether the XML will be transformed into JSON object and invoke the corresponding Function when the transformation successes and fails.
  
  ```
   public void testToJSONConcurrentSuccess()
@@ -236,4 +236,4 @@ value=File
  
   Correctness: For all kinds of test cases, unit tests pass correctly and the output matches the expected. The toJSONObject method works.
    
-  To make the method work asynchronously, I used Future and Thread pool in the XML class. Besides, I add two Function objects as arguments to figure out what to do on success and failure. In this way, the users can define their logic for the callback functions. This is quite similar to the JavaScript CallBack Style and this method just works well.
+  To make the method work asynchronously, I used Future and Thread pool in the XML class. Besides, I add two Function objects as arguments to figure out what to do on success and failure. In this way, the users can define their logic for the callback functions. This is quite similar to the JavaScript CallBack Style and this method just works.

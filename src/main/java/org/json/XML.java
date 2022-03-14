@@ -1366,6 +1366,7 @@ public class XML {
     }
 
     /**
+     * Millstone 3
      * toJSONObject to transform key values in xml files. This method
      * is just same to the toJSONObject method toJSONObject(Reader reader,
      * XMLParserConfiguration config) except it accepts a keyTransformer Function
@@ -1390,6 +1391,7 @@ public class XML {
 
 
     /**
+     * Millstone 3
      * Scan the content following the named tag, attaching it to the context. This
      * is overloaded for toJSONObject(Reader reader, Function<String,String> keyTransformer).
      * The codes are just the same as original parse method. The only difference is that
@@ -1771,6 +1773,7 @@ public class XML {
 
     //https://www.baeldung.com/java-future
     /**
+     * Millstone 5
      * toJSONObject to transform key values in xml files. This method
      * is an asynchronous toJSONObject method. It accepts a reader and
      * invoke normal toJSONObject method to do the transformation.

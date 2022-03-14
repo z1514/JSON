@@ -1239,6 +1239,7 @@ public class XMLTest {
     }
 
     /**
+     * Millstone 3
      * Test passes when the transformations including adding, reversing and uppercase are done on keys.
      * For method toJSONObject(Reader reader, Function<String,String> keyTransformer).
      * It should throw a JSONException
@@ -1372,6 +1373,7 @@ public class XMLTest {
     }
 
     /**
+     * Millstone 5
      * Test passes when the XML format is correct.
      * For method Future<JSONObject> toJSONObject(Reader reader, Function<JSONObject,Void> onFinish, Function<Exception,Void> onError).
      * It should return transformed JSONObject
